@@ -3,7 +3,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import axios from "axios";
 import "./Map.css";
-import Villa_information from "./Villa_information";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZXRlcm5pdGVjaCIsImEiOiJjbGp3djU5N28xczRsM2JuZ3h0NG1iZWZoIn0.Ef8zkzCW9v9tFrowdiacrQ";
