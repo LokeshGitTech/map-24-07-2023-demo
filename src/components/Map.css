@@ -4,25 +4,46 @@
   }
   
 
-  .marker{
-    background-image: url("../Assets/depositphotos_87979780-stock-illustration-map-marker-icon.jpg");
+  .continent-marker{
+    
+    background-image: url("../Assets/continent-marker.svg");
     background-size: cover;
-    background-color:#54e81a;
-    width: 20px;
-    height: 20px;
+    
+    width: 12px;
+    height: 15px;
     border-radius: 50%;
-    cursor: pointer;
- 
-    /* color: red; */
-    /* opacity: 10; */
+    /* cursor: pointer; */
   }
 
-  .blue-marker{
-    background-image: url("../Assets//depositphotos_87979780-stock-illustration-map-marker-icon.jpg");
+
+  .villas-marker{
+    background-image: url("../Assets/country-marker.svg");
     background-size: cover;
-    background-color:#54e81a;
-    width: 20px;
-    height: 20px;
+    /* border: 0.2px solid black; */
+    width: 12px;
+    height: 15px;
     border-radius: 50%;
-    cursor: pointer;
+    /* cursor: pointer; */
   }
+
+  
+
+
+
+.mapboxgl-ctrl-group {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.mapboxgl-ctrl-icon {
+  width: 22px;
+  height: 22px;
+  background-repeat: no-repeat;
+  background-size: 22px;
+  background-position: center center;
+  cursor: pointer;
+}
+
+.mapboxgl-ctrl-restart {
+  background-image: url(../Assets/Earth-icon.png.png); /* Replace with your restart icon */
+}

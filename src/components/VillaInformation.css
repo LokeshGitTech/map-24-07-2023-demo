@@ -1,17 +1,32 @@
 .image{
-    height: 100px;
+    height: 110px;
     width: 150px;
     display: flex;
     padding: 20px;
+  
 }
+
 
 
 .villa-details-container{
     display: flex;
     height: 150px;
-    /* justify-content: center; */
+    background-color:  rgb(235, 232, 232);
 }
 
 .Top-Destination{
     display: flex;
+    
 }
+
+.btn{
+    height: 20px;
+    width: 60px;
+    margin: 3px;
+}
+
+.green-button {
+    background-color: green;
+    color: white; /* Set text color to white to make it more visible */
+  }
+

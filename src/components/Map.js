@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import axios from "axios";
 import "./Map.css";
+import VillaInformation from "./Villa_information";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZXRlcm5pdGVjaCIsImEiOiJjbGp3djU5N28xczRsM2JuZ3h0NG1iZWZoIn0.Ef8zkzCW9v9tFrowdiacrQ";
@@ -13,15 +15,15 @@ const apiToken =
 const continentDefault = {
   type: "FeatureCollection",
   features: [
-    {
-      // Australia
-      type: "Feature",
-      properties: {},
-      geometry: {
-        coordinates: [130.08150699373945, -22.000825079689697],
-        type: "Point",
-      },
-    },
+    // {
+    //   // Australia
+    //   type: "Feature",
+    //   properties: {},
+    //   geometry: {
+    //     coordinates: [130.08150699373945, -22.000825079689697],
+    //     type: "Point",
+    //   },
+    // },
     {
       // South America
       type: "Feature",
@@ -74,6 +76,9 @@ const Map = () => {
   const [destinations, setdestinations] = useState(null);
   const [countriesMarker, setcountriesMarker] = useState(null);
   const mapContainer = useRef(null);
+  const [villaInfo, setVillaInfo] = useState([]);
+  const [showVillaInfo, setShowVillaInfo] = useState(false);
+  const [villaMarkerClick, setVillaMarkerClick] = useState([]);
 
   let country = [];
   let continentMarkers = [];
@@ -111,19 +116,42 @@ const Map = () => {
   useEffect(() => {
     if (destinations) {
       displayMap();
+      
     }
   }, [destinations]);
 
   const displayMap = () => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: "mapbox://styles/eternitech/clk3s1a0h00gi01qyh76j1iks",
       center: [0, 0], // Set initial center or any default location
       zoom: 0.8, // Set initial zoom level
       cursor: "pointer",
       projection: "mercator",
       scrollZoom: false,
     });
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new mapboxgl.NavigationControl());
+    
+    const createRestartButton = () => {
+    const button = document.createElement('button');
+    button.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-restart';
+    button.title = 'Restart Map';
+    button.onclick = () => {
+      window.location.reload(); // Reload the page when the button is clicked
+    };
+  
+    const container = document.createElement('div');
+    container.className = 'mapboxgl-ctrl-group mapboxgl-ctrl';
+    container.appendChild(button);
+
+    return container;
+  }
+
+  const restartButton = createRestartButton();
+  map.addControl(restartButton, 'top-right');
+ 
 
     //    load a world geojson file for
     map.on("load", function () {
@@ -155,7 +183,7 @@ const Map = () => {
             0, // Default color
           ],
           "fill-color": "#54e81a",
-          // "fill-opacity": 0.4,
+          "fill-outline-color": "#0d9118", // Border color when hovered
         },
       });
 
@@ -204,11 +232,11 @@ const Map = () => {
 
       ////////////////    ADddddd continent level marker marker ////////////////////////////////////
       continentDefault.features.forEach(function (marker) {
-        var el = document.createElement("div");
-        el.className = "marker";
+        const element = document.createElement("div");
+        element.className = "continent-marker";
 
         continentMarkers.push(
-          new mapboxgl.Marker(el)
+          new mapboxgl.Marker(element)
             .setLngLat(marker.geometry.coordinates)
             .addTo(map)
         );
@@ -230,12 +258,55 @@ const Map = () => {
             0, // Default color
           ],
           "fill-color": "#54e81a",
-          // "fill-opacity": 0.4,
+          "fill-outline-color": "#0d9118", // Border color when hovered
+          
         },
       });
+
+      
+
       map.on("click", "country-fills", (e) => {
+        console.log("clicked country");
+
+        // Unhide a villaInformationModel
+        const villaInformationModel = document.getElementsByClassName(
+          "villaInformationModel"
+        )[0];
+        villaInformationModel.removeAttribute("hidden");
+
+        const features = e.features[0];
+        const clickedCountryId = features.properties.ISO_A3;
+
+        // Highlight the clicked country with a new colored layer
+        map.addLayer({
+          id: "clicked-country",
+          type: "fill",
+          source: "countries",
+          filter: ["==", "ISO_A3", clickedCountryId], // first click on country.
+          paint: {
+            "fill-color": "#69c246", // Color to highlight the clicked country
+            "fill-opacity": 0.9,
+            "fill-outline-color": "#013220",
+          },
+        });
+
+        // second county click
+        map.on("click", "country-fills", (e) => {
+          console.log("second county click");
+
+          const features = e.features[0];
+          console.log("features", features);
+          const clickedCountryId = features.properties.ISO_A3;
+          console.log("clickedCountryId", clickedCountryId);
+
+          // Update the filter of the "clicked-country" layer to highlight the clicked country
+          map.setFilter("clicked-country", ["==", "ISO_A3", clickedCountryId]);
+        });
+
         let singleCountry = [];
-        if (e.features[0].properties.ADMIN && countriesMarker) {
+        let countryName = e.features[0].properties.ADMIN;
+        if (countryName && countriesMarker) {
+          console.log("countriesMarker", countriesMarker);
           singleCountry = countriesMarker.filter(
             (i) => i[0] == e.features[0]?.properties?.ADMIN
           );
@@ -243,13 +314,60 @@ const Map = () => {
             villas = Object.entries(singleCountry[0][1]?.regions);
           }
         }
+
+        // villas marker add
         villas?.map((e) => {
-          const element = document.createElement("div");
-          element.className = "blue-marker";
-          return new mapboxgl.Marker(element)
+          var iconElement = document.createElement("i");
+          iconElement.className = " fa-solid fa-location-pin";
+          iconElement.style.color = "#ffffff"; // Set the icon color
+
+          // Create a marker with the Font Awesome icon
+          var markerElement = document.createElement("div");
+          markerElement.appendChild(iconElement); // Append the icon to the marker
+          const popup = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: true,
+          }).setText(`${e[0]}`);
+
+          const marker = new mapboxgl.Marker(iconElement)
             ?.setLngLat([e[1]?.lng, e[1]?.lat])
-            .addTo(map);
+            .setPopup(popup)
+            .addTo(map)
+
+            marker.getElement().addEventListener("mouseenter", () => {
+              // Change the color when hovering over the marker
+              marker.togglePopup();
+              iconElement.style.color = "#ff0000"; // Set the hover icon color
+            });
+
+             marker.getElement().addEventListener("mouseleave", () => {
+              // Reset the color when the hover exits
+              marker.togglePopup();
+              iconElement.style.color = "#ffffff"; // Set the default icon color
+            });
+
+            marker.getElement()
+            .addEventListener("click", () => {
+              const villaMarkerClick = {
+                country: countryName,
+                villa: e[0],
+                allVillasInCounty: villas,
+              };
+              setVillaMarkerClick(villaMarkerClick);
+              setShowVillaInfo(true);
+            });
         });
+
+        
+
+        // VillaInfo model open
+        const villaInfo = {
+          country: countryName,
+          villa: e[0],
+          allVillasInCounty: villas,
+        };
+        setVillaInfo(villaInfo);
+        setShowVillaInfo(true);
 
         country?.forEach(function (marker) {
           marker.remove();
@@ -298,22 +416,35 @@ const Map = () => {
       });
 
       countriesMarker?.map((i) => {
-        var el = document.createElement("div");
-        el.className = "marker";
-        new mapboxgl.Marker(el)
+        var element = document.createElement("div");
+        element.className = "villas-marker";
+        new mapboxgl.Marker(element)
           .setLngLat([i[1].lng, i[1].lat])
           .addTo(map)
           .getElement()
           .addEventListener("click", () => {});
         country?.push(
-          new mapboxgl.Marker(el).setLngLat([i[1].lng, i[1].lat]).addTo(map)
+          new mapboxgl.Marker(element)
+            .setLngLat([i[1].lng, i[1].lat])
+            .addTo(map)
         );
       });
     };
   };
   return (
-    <div id="map-container">
-      <div className="map-container" ref={mapContainer} />
+    <div>
+      <div className="villaInformationModel" hidden>
+        {showVillaInfo && (
+          <VillaInformation
+            villaInfo={villaInfo}
+            villaMarkerClick={villaMarkerClick}
+          />
+        )}
+      </div>
+
+      <div id="map-container">
+        <div className="map-container" ref={mapContainer} ></div>
+      </div>
     </div>
   );
 };
