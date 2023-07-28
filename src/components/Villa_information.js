@@ -3,7 +3,6 @@ import "./VillaInformation.css";
 
 const VillaInformation = ({ villaInfo, villaMarkerClick }) => {
   const [villasInCounty, setVillasInCounty] = useState([]);
-  
 
   useEffect(() => {
     if (villaMarkerClick) {
@@ -11,7 +10,6 @@ const VillaInformation = ({ villaInfo, villaMarkerClick }) => {
     }
   }, [villaMarkerClick]);
 
- 
   return (
     <div className="title" id="element">
       <hr />
@@ -32,9 +30,23 @@ const VillaInformation = ({ villaInfo, villaMarkerClick }) => {
               <b>Top Destination</b>
               <div className="Top-Destination">
                 {villaInfo.allVillasInCounty?.map((villaData, index) => (
-                  <button key={index} className={`btn ${villasInCounty.villa === villaData[0] ? "green-button" : ""}`}>
+                  <div
+                    style={{
+                      border: "1px solid black",
+                      color: "#333", // Example text color
+                      padding: "1px", // Example padding
+                      borderRadius: "4px", // Example border radius
+                      textAlign: "center",
+                    }}
+                    key={index}
+                    className={`btn ${
+                      villasInCounty.villa === villaData[0]
+                        ? "green-button"
+                        : ""
+                    }`}
+                  >
                     {villaData[0].substring(0, 5).trim()}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -5,6 +5,7 @@ import mapboxgl from "mapbox-gl";
 import axios from "axios";
 import "./Map.css";
 import VillaInformation from "./Villa_information";
+import { IoGlobeOutline } from "react-icons/io5";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZXRlcm5pdGVjaCIsImEiOiJjbGp3djU5N28xczRsM2JuZ3h0NG1iZWZoIn0.Ef8zkzCW9v9tFrowdiacrQ";
@@ -85,7 +86,7 @@ const Map = () => {
   let villas = [];
   let hoveredId;
   let mapData = [];
-  let isVilla = false;
+
   // Fetch destinations Api
   useEffect(() => {
     fetchData();
@@ -113,10 +114,29 @@ const Map = () => {
     }
   };
 
+  const mapRef = useRef(null); // Ref to hold the map instance
+
+  // Restart button
+  const handleRestartClick = () => {
+    displayMap();
+    const villaInformationModel = document.getElementsByClassName(
+      "villaInformationModel"
+    )[0];
+    villaInformationModel.setAttribute("hidden", "true");
+
+    if (mapRef.current) {
+      // Reset the map's center and zoom level to their original values
+      mapRef.current.easeTo({
+        center: [0, 0], // Set the center to its original value
+        zoom: 0.8, // Set the zoom level to its original value
+        duration: 1000, // Set the animation duration (in milliseconds)
+      });
+    }
+  };
+
   useEffect(() => {
     if (destinations) {
       displayMap();
-      
     }
   }, [destinations]);
 
@@ -131,27 +151,10 @@ const Map = () => {
       scrollZoom: false,
     });
 
+    mapRef.current = map; // Save the map instance to the ref
+
     // Add zoom and rotation controls to the map.
     map.addControl(new mapboxgl.NavigationControl());
-    
-    const createRestartButton = () => {
-    const button = document.createElement('button');
-    button.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-restart';
-    button.title = 'Restart Map';
-    button.onclick = () => {
-      window.location.reload(); // Reload the page when the button is clicked
-    };
-  
-    const container = document.createElement('div');
-    container.className = 'mapboxgl-ctrl-group mapboxgl-ctrl';
-    container.appendChild(button);
-
-    return container;
-  }
-
-  const restartButton = createRestartButton();
-  map.addControl(restartButton, 'top-right');
- 
 
     //    load a world geojson file for
     map.on("load", function () {
@@ -259,11 +262,8 @@ const Map = () => {
           ],
           "fill-color": "#54e81a",
           "fill-outline-color": "#0d9118", // Border color when hovered
-          
         },
       });
-
-      
 
       map.on("click", "country-fills", (e) => {
         console.log("clicked country");
@@ -317,12 +317,12 @@ const Map = () => {
 
         // villas marker add
         villas?.map((e) => {
-          var iconElement = document.createElement("i");
+          let iconElement = document.createElement("i");
           iconElement.className = " fa-solid fa-location-pin";
           iconElement.style.color = "#ffffff"; // Set the icon color
 
           // Create a marker with the Font Awesome icon
-          var markerElement = document.createElement("div");
+          let markerElement = document.createElement("div");
           markerElement.appendChild(iconElement); // Append the icon to the marker
           const popup = new mapboxgl.Popup({
             closeButton: true,
@@ -332,33 +332,37 @@ const Map = () => {
           const marker = new mapboxgl.Marker(iconElement)
             ?.setLngLat([e[1]?.lng, e[1]?.lat])
             .setPopup(popup)
-            .addTo(map)
+            .addTo(map);
 
-            marker.getElement().addEventListener("mouseenter", () => {
-              // Change the color when hovering over the marker
-              marker.togglePopup();
-              iconElement.style.color = "#ff0000"; // Set the hover icon color
-            });
+            const popup1 = new mapboxgl.Marker(iconElement)
+            ?.setLngLat([e[1]?.lng, e[1]?.lat]).addTo(map);
 
-             marker.getElement().addEventListener("mouseleave", () => {
-              // Reset the color when the hover exits
-              marker.togglePopup();
-              iconElement.style.color = "#ffffff"; // Set the default icon color
-            });
+          marker.getElement().addEventListener("mouseenter", () => {
+            // Change the color when hovering over the marker
+            marker.togglePopup();
+            iconElement.style.color = "#053609"; // Set the hover icon color
+            markerElement.style.transform = "scale(1.5)"; // Increase marker size (adjust the scale as needed)
+          });
 
-            marker.getElement()
-            .addEventListener("click", () => {
-              const villaMarkerClick = {
-                country: countryName,
-                villa: e[0],
-                allVillasInCounty: villas,
-              };
-              setVillaMarkerClick(villaMarkerClick);
-              setShowVillaInfo(true);
-            });
+          marker.getElement().addEventListener("mouseleave", () => {
+            // Reset the color when the hover exits
+            marker.togglePopup();
+            iconElement.style.color = "#ffffff"; // Set the default icon color
+          });
+
+          marker.getElement().addEventListener("click", () => {
+            // iconElement.className = " fa-solid fa-location-pin";
+            iconElement.style.color = "#053609"; // Set the icon color
+            popup1.setPopup(popup)
+            const villaMarkerClick = {
+              country: countryName,
+              villa: e[0],
+              allVillasInCounty: villas,
+            };
+            setVillaMarkerClick(villaMarkerClick);
+            setShowVillaInfo(true);
+          });
         });
-
-        
 
         // VillaInfo model open
         const villaInfo = {
@@ -443,7 +447,17 @@ const Map = () => {
       </div>
 
       <div id="map-container">
-        <div className="map-container" ref={mapContainer} ></div>
+        <div className="map-container" ref={mapContainer}>
+          <div>
+            <button
+              id="zoom-out-button"
+              className="earth-icon-button"
+              onClick={handleRestartClick}
+            >
+              <IoGlobeOutline />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

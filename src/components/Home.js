@@ -17,7 +17,6 @@ const Home = () => {
             <p>Navbar</p>
           </div>
           <div><b>Interactive Map</b></div>
-          {/* <Villa_information/> */}
           <Map />
         </div>
       </div>

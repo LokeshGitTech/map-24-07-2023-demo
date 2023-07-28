@@ -6,8 +6,6 @@
   
 }
 
-
-
 .villa-details-container{
     display: flex;
     height: 150px;
@@ -27,6 +25,15 @@
 
 .green-button {
     background-color: green;
-    color: white; /* Set text color to white to make it more visible */
+    color: white;
   }
 
+
+  /* #item {
+    flex: 1;
+    max-width: 200px; 
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+   
+  } */
