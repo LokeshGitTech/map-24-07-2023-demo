@@ -192,3 +192,12 @@
     justify-content: center;
     cursor: pointer;
   }
+
+  .villa-highlight {
+    background-color: rgb(10, 167, 10);
+    color: white;
+    border-radius: 6px;
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+  }
