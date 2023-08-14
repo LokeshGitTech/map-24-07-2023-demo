@@ -4,11 +4,12 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "./map.css";
 import { ACCESS_TOKEN, defaultContinent } from "../Constants/mapboxConstants";
 import fetchDestinationsData from "../Utils/destinationDataHelper";
-import { Dropdown, DropdownButton, Form } from "react-bootstrap";
+
 
 mapboxgl.accessToken = ACCESS_TOKEN;
 
 const Map = () => {
+  // const navigate = useNavigate();
   const [destinationsData, setDestinationsData] = useState([]);
   const [singleCountryMarker, setSingleCountryMarker] = useState([]);
   const [dropdownItem, setDropdownItem] = useState([]);
@@ -479,7 +480,9 @@ const Map = () => {
             });
 
             marker.getElement().addEventListener("click", () => {
+              console.log("hello");
               if (clickedMarker) {
+
                 const clickedIconElement = clickedMarker.getElement();
                 clickedIconElement.className = "custom-active-country-marker";
               }
@@ -489,6 +492,15 @@ const Map = () => {
               setClickedDestination(villaItem[0]);
               setAreaText(` |  Area `);
               setVillaInModal(villaItem[0]);
+
+              // navigate(`/villaName=${villaItem[0]}/lng=${villaItem[1]?.lng}&&lat=${villaItem[1]?.lat}`); // Modify the URL structure as needed
+              const messageData = {
+                type: "markerClicked",
+                villa: villaItem[0],
+                lat: villaItem[1]?.lat,
+                lng: villaItem[1]?.lng,
+              };
+              window.parent.postMessage(messageData, "*");
             });
           });
         }
@@ -519,7 +531,6 @@ const Map = () => {
     const matchedVilla = villaMarker.find(([name]) => name === villaName);
     setAreaText(`Area | `);
     setVillaInModal(matchedVilla[0]);
-    console.log("matchedVilla", matchedVilla);
     if (currentPopup) {
       currentPopup.remove();
     }
@@ -687,7 +698,6 @@ const Map = () => {
                 </div>
               </div>
               <div className="destinations">
-                {console.log("villaData", villas)}
                 {currentItems?.map((villaData, index) => {
                   const isHighlighted = clickedDestination === villaData[0];
 
