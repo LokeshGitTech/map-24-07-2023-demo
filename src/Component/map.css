@@ -7,8 +7,8 @@
   .header {
     color: #133c73;
     font-size: 25px;
-    font-family: "Noto Sans", sans-serif;
-    font-family: "Quicksand", sans-serif !important;
+    /* font-family: "Noto Sans", sans-serif; */
+     font-family: "Quicksand", sans-serif !important; 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin-left: 1%;
@@ -200,4 +200,8 @@
     /* display: flex; */
     align-items: center;
     justify-content: center;
+  }
+
+  .villa_description{
+    margin-top: 15px;
   }

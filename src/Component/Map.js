@@ -51,6 +51,7 @@ const Map = () => {
   };
 
   useEffect(() => {
+    console.log("map render");
     const fetchDataFromApi = async () => {
       try {
         const apiData = await fetchDestinationsData();
@@ -561,7 +562,7 @@ const Map = () => {
           }}
         >
           <div className="header">
-            <b> Interactive Map</b>
+             Interactive Map
           </div>
           <div>
             {showDropdown && (
@@ -644,7 +645,7 @@ const Map = () => {
                 }
               </div>
               <div>
-                <div>
+                <div className="villa_description">
                   From the fragrant lavender fields of Provence and the
                   sun-kissed villas of the Côte d'Azur to storybook alpine
                   chalets, ornate Parisian retreats, and historic vineyard
